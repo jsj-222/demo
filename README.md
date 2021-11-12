@@ -32,7 +32,17 @@ spring:
     url: jdbc:mysql://localhost:3306/article_collect?ServerTimezone=GMT%2B8
     username: root
     password: abc123
+# 如需配置端口，可以按照如下格式修改，默认为8080
+server:
+  port: 8080
 ```
+
+### 4.启动
+请确保在java8环境下
+```shell
+  java -jar app-core-1.0.jar
+```
+启动后会在jar包目录下生成logs文件
 
 ## 项目模块索引
 **app-core**: 项目的主类(启动类)所在位置
