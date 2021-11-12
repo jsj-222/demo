@@ -36,13 +36,17 @@ spring:
 server:
   port: 8080
 ```
+[查看所有配置](app-core/README.md)
+
+*此处所有仅指自定义的配置字段*
 
 ### 4.启动
 请确保在java8环境下
 ```shell
   java -jar app-core-1.0.jar
 ```
-启动后会在jar包目录下生成logs文件
+启动后会在jar包目录下生成logs文件夹存放日志
+
 
 ## 项目模块索引
 **app-core**: 项目的主类(启动类)所在位置

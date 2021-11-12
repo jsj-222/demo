@@ -2,7 +2,7 @@ spring:
   datasource:
     username: root
     password: abc123
-    url: jdbc:mysql://localhost:3306/article_collect
+    url: jdbc:mysql://localhost:3306/article_collect?ServerTimezone=GMT%2B8
   output:
     ansi:
       enabled: detect
