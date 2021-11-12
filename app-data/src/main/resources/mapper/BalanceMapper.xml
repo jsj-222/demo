@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.biocar.mapper.BalanceMapper">
+
+
+
+    <select id="getBalanceByOfTheDay" resultType="double">
+        SELECT SUM(IF (balance_type = 1 , revenue, -revenue))
+        FROM t_balance
+        WHERE `date` = #{date}
+    </select>
+
+    <select id="getTotalBalanceIn" resultType="java.util.Map">
+        SELECT b.id, b.date, b.revenue, b.master, b.note ,p.name AS 'projectName'
+        FROM t_balance AS b
+        LEFT JOIN t_project AS p
+        ON b.id = p.id
+        WHERE balance_type = 1 AND `DATE` = #{date}
+    </select>
+    <select id="getTotalBalanceOut" resultType="java.util.Map">
+        SELECT b.id, b.date, b.revenue, b.master, b.note ,p.name AS 'projectName'
+        FROM t_balance AS b
+        LEFT JOIN t_project AS p
+        ON b.id = p.id
+        WHERE balance_type = 0 AND `DATE` = #{date}
+    </select>
+
+</mapper>
