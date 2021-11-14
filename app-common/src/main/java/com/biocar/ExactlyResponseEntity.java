@@ -23,7 +23,7 @@ public class ExactlyResponseEntity<T> extends ResponseEntity<CommonResponse<T>> 
      * @param type 响应数据data的类型
      */
     public static <R> Builder<R> create(Class<R> type) {
-        return new Builder<>(HttpStatus.OK.value());
+        return create(HttpStatus.OK.value(), type);
     }
 
     /**
@@ -32,8 +32,11 @@ public class ExactlyResponseEntity<T> extends ResponseEntity<CommonResponse<T>> 
      * @param type 响应数据data的类型
      */
     public static <R> Builder<R> create(int status, Class<R> type) {
-
         return new Builder<>(status);
+    }
+
+    public static <R> Builder<R> create(R data) {
+        return new Builder<>(HttpStatus.OK.value(), data);
     }
 
     public static class Builder<R> {
@@ -42,7 +45,7 @@ public class ExactlyResponseEntity<T> extends ResponseEntity<CommonResponse<T>> 
 
         private String message;
 
-        private int code;
+        private int code = 20000;
 
         private R data;
 
@@ -52,14 +55,15 @@ public class ExactlyResponseEntity<T> extends ResponseEntity<CommonResponse<T>> 
             this.statusCode = statusCode;
         }
 
+        public Builder(int statusCode, R data) {
+            this.statusCode = statusCode;
+            this.data = data;
+        }
         public Builder<R> code(int code) {
             this.code = code;
             return this;
         }
 
-        public Builder<R> success() {
-            return code(0);
-        }
 
         public Builder<R> fail() {
             return fail("服务器繁忙,请稍后再试");
@@ -92,6 +96,26 @@ public class ExactlyResponseEntity<T> extends ResponseEntity<CommonResponse<T>> 
             }
             return new ExactlyResponseEntity<>(new CommonResponse<>(code, message, data), headers, statusCode);
         }
+    }
+
+    public static ExactlyResponseEntity<Void> emptyBodySuccess() {
+        return ExactlyResponseEntity.create(Void.class).build();
+    }
+
+    public static ExactlyResponseEntity<Void> emptyBodyFail(String message) {
+        return ExactlyResponseEntity.create(Void.class).fail(message).build();
+    }
+
+    public static <TP> ExactlyResponseEntity<TP> successWithBody(TP data) {
+        return ExactlyResponseEntity.create(data).build();
+    }
+    /**
+     * 返回失败响应，但无法确定data类型
+     * @param message message信息
+     * @return ExactlyResponseEntity<Object>
+     */
+    public static ExactlyResponseEntity<Object> failUnknown(String message) {
+        return ExactlyResponseEntity.create(HttpStatus.OK.value(), Object.class).fail(message).build();
     }
 
 

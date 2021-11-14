@@ -26,4 +26,8 @@ public class WrapperUtils {
     public static String sumAs(String column, String alias)  {
         return sum(column) + "AS" + alias;
     }
+
+    public static String like(String keyword) {
+        return "%" + keyword + "%";
+    }
 }

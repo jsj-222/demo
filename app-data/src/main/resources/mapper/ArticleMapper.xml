@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.biocar.mapper.ArticleMapper">
+
+    <select id="selectByPage" resultType="com.biocar.bean.Article">
+        SELECT * FROM articles
+        LIMIT ${(index - 1) * max}, #{max}
+    </select>
+    <select id="search" resultType="com.biocar.bean.Article">
+        SELECT * FROM articles
+        WHERE title LIKE CONCAT(CONCAT('%', #{keyword}), '%')
+        LIMIT ${(index - 1) * max}, #{max}
+    </select>
+
+</mapper>

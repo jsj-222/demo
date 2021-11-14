@@ -5,7 +5,7 @@ target/
 !**/src/test/**/target/
 /config/application.yaml
 /config/device.json
-/logs/*
+logs
 /cache/*
 
 ### STS ###
