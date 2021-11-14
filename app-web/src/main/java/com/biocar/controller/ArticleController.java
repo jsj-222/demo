@@ -4,10 +4,8 @@ import com.biocar.ExactlyResponseEntity;
 import com.biocar.bean.Article;
 import com.biocar.mapper.ArticleMapper;
 import com.biocar.service.ArticleService;
-import io.swagger.annotations.Api;
-import io.swagger.annotations.ApiOperation;
-import io.swagger.annotations.ApiParam;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.*;
 
 import java.lang.reflect.Field;
@@ -22,8 +20,7 @@ import java.util.NoSuchElementException;
  */
 @RestController
 @CrossOrigin
-@Api(tags = "文章接口")
-@RequestMapping("/article")
+@RequestMapping(value = "/article", produces = MediaType.APPLICATION_JSON_VALUE)
 public class ArticleController {
 
     private ArticleService articleService;
@@ -39,8 +36,7 @@ public class ArticleController {
      * @return 文章信息
      */
     @GetMapping("/query")
-    @ApiOperation("根据id查询文章")
-    public ExactlyResponseEntity<Article> queryArticle(@ApiParam(name = "id", value = "文章id", required = true) String id) {
+    public ExactlyResponseEntity<Article> queryArticle(@RequestParam String id) {
         try {
             Article article = articleService.getArticle(id);
             return ExactlyResponseEntity.create(Article.class)

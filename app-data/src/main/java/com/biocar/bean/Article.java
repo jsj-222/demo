@@ -6,7 +6,6 @@ import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
 import com.biocar.common.TimestampSerializer;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
-import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 
 import java.math.BigDecimal;
@@ -43,11 +42,9 @@ public class Article {
 
     @TableField("started_at")
     @JsonSerialize(using = TimestampSerializer.class)
-    @ApiModelProperty(dataType = "string")
     private Timestamp startedAt;
 
     @TableField()
-    @ApiModelProperty(example = "50.5")
     private BigDecimal weight;
 
     @TableField
@@ -61,16 +58,13 @@ public class Article {
 
     @TableField("created_at")
     @JsonSerialize(using = TimestampSerializer.class)
-    @ApiModelProperty(dataType = "string")
     private Timestamp createdAt;
 
     @TableField("updated_at")
     @JsonSerialize(using = TimestampSerializer.class)
-    @ApiModelProperty(example = "1636694415793", dataType = "java.lang.String", value = "更新时间", name = "test")
     private Timestamp updatedAt;
 
     @TableField("img_url")
-    @ApiModelProperty(example = "1636694415793", dataType = "String", value = "更新时间", name = "test")
     private String imgUrl;
 
 }
