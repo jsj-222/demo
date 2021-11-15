@@ -12,6 +12,7 @@ import org.springframework.util.MultiValueMap;
  * @author DeSen Xu
  * @date 2021-11-04 20:38
  */
+@Deprecated
 public class ExactlyResponseEntity<T> extends ResponseEntity<CommonResponse<T>> {
 
     public ExactlyResponseEntity(CommonResponse<T> body, MultiValueMap<String, String> headers, int status) {

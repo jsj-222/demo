@@ -19,51 +19,96 @@ import java.sql.Timestamp;
 @TableName("articles")
 public class Article {
 
+    /**
+     * 文章id
+     */
     @TableId(type = IdType.AUTO)
     private Integer id;
 
+    /**
+     * 文章标题
+     */
     @TableField
     private String title;
 
+    /**
+     * 文章类型
+     */
     @TableField("article_type")
     private Integer articleType;
 
+    /**
+     * 文章内容
+     */
     @TableField
     private String body;
 
+    /**
+     * 文章来源url
+     */
     @TableField("source_url")
     private String sourceUrl;
 
+    /**
+     * 文章来源
+     */
     @TableField
     private String source;
 
+    /**
+     * 文章查看量
+     */
     @TableField("view_count")
     private Integer viewCount;
 
+    /**
+     * 开始时间, 毫秒级别时间戳
+     */
     @TableField("started_at")
     @JsonSerialize(using = TimestampSerializer.class)
     private Timestamp startedAt;
 
+    /**
+     * 权重
+     */
     @TableField()
     private BigDecimal weight;
 
+    /**
+     * 关键字
+     */
     @TableField
     private String keyword;
 
+    /**
+     * 是否被激活
+     */
     @TableField
     private Integer active;
 
+    /**
+     * 是否被删除
+     */
     @TableField("is_delete")
     private Integer isDelete;
 
+    /**
+     * 创建于, 返回毫秒级别时间戳
+     */
     @TableField("created_at")
     @JsonSerialize(using = TimestampSerializer.class)
     private Timestamp createdAt;
 
+    /**
+     * 更新于，返回毫秒级别时间戳
+     */
     @TableField("updated_at")
     @JsonSerialize(using = TimestampSerializer.class)
     private Timestamp updatedAt;
 
+    /**
+     * 图片url
+     */
     @TableField("img_url")
     private String imgUrl;
 

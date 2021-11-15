@@ -27,7 +27,11 @@ public class ArticleServiceImpl implements ArticleService {
 
     @Override
     public Article getArticle(String id) {
-        return articleMapper.selectById(id);
+        Article article = articleMapper.selectById(id);
+        if (article == null) {
+            throw new NoSuchElementException();
+        }
+        return article;
     }
 
     @Override
@@ -64,7 +68,7 @@ public class ArticleServiceImpl implements ArticleService {
     @Override
     public void deleteArticle(String id) throws NoSuchElementException {
        int i= articleMapper.deleteById(id);
-       if(i==0){
+       if(i == 0){
            throw new NoSuchElementException();
        }
 

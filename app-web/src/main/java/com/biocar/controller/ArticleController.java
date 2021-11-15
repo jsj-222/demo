@@ -1,19 +1,14 @@
 package com.biocar.controller;
 
-import com.biocar.ExactlyResponseEntity;
+import com.biocar.ResBean;
 import com.biocar.bean.Article;
-import com.biocar.mapper.ArticleMapper;
 import com.biocar.service.ArticleService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.*;
-
-import java.lang.reflect.Field;
 import java.math.BigDecimal;
 import java.sql.Timestamp;
 import java.time.Instant;
-import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import java.util.NoSuchElementException;
 
@@ -34,21 +29,17 @@ public class ArticleController {
     }
 
     /**
-     * 查询文章
+     * 根据id查询文章
      * @param id 文章id
      * @return 文章信息
      */
     @GetMapping("/query")
-    public ExactlyResponseEntity<Article> queryArticle(@RequestParam String id) {
+    public ResBean<Article> queryArticle(@RequestParam String id) {
         try {
             Article article = articleService.getArticle(id);
-            return ExactlyResponseEntity.create(Article.class)
-                    .data(article)
-                    .build();
+            return ResBean.successWithObj(article);
         } catch (NoSuchElementException e) {
-            return ExactlyResponseEntity.create(Article.class)
-                    .fail("该文章不存在")
-                    .build();
+            return ResBean.failWithMsg("没有找到指定的文章");
         }
     }
 
@@ -57,15 +48,12 @@ public class ArticleController {
      * @param id 文章id
      */
     @PostMapping("/delete")
-    public ExactlyResponseEntity<Void> deleteArticle(@RequestParam("文章id") String id) {
+    public ResBean<Void> deleteArticle(@RequestParam("文章id") String id) {
         try {
             articleService.deleteArticle(id);
-            return ExactlyResponseEntity.create(Void.class)
-                    .build();
+            return ResBean.successWithObj(null);
         } catch (NoSuchElementException e) {
-            return ExactlyResponseEntity.create(Void.class)
-                    .fail("该文章不存在")
-                    .build();
+            return ResBean.failWithMsg("该文章不存在");
         }
     }
 
@@ -73,7 +61,7 @@ public class ArticleController {
      * 添加
      */
     @PostMapping("/insert")
-    public ExactlyResponseEntity<Integer> addArticle(@RequestParam String title,
+    public ResBean<Integer> addArticle(@RequestParam String title,
                                                      @RequestParam String body,
                                                      @RequestParam String source,
                                                      @RequestParam(required = false) String weight,
@@ -100,81 +88,26 @@ public class ArticleController {
         article.setUpdatedAt(now);
 
         int id = articleService.addArticle(article);
-        return ExactlyResponseEntity.create(Integer.class)
-                .data(id)
-                .build();
+        return ResBean.successWithObj(id);
 
     }
 
-//    @PostMapping("/modify")
-//    public ExactlyResponseEntity<Void> updateArticle(@RequestParam String id, @RequestParam String key, @RequestParam String value) {
-//        Class<Article> articleClass = Article.class;
-//        Article article = new Article();
-//
-//        if (ArticleMapper.COLUMN_ID.equals(key)) {
-//            return ExactlyResponseEntity.create(Void.class)
-//                    .fail("can not modify id!")
-//                    .build();
-//        }
-//
-//        try {
-//            // 反射设置值
-//            Field declaredField = articleClass.getDeclaredField(key);
-//            // 获取类型
-//            Class<?> type = declaredField.getType();
-//            declaredField.setAccessible(true);
-//
-//            Object articleValue;
-//
-//            if (type.equals(Timestamp.class)) {
-//                // 日期判断
-//                articleValue = new Timestamp(Long.parseLong(value));
-//            } else if (type.equals(int.class)){
-//                // int
-//                articleValue = Integer.parseInt(value);
-//            } else if (type.equals(BigDecimal.class)){
-//                // BigDecimal
-//                articleValue = BigDecimal.valueOf(Double.parseDouble(value));
-//            } else {
-//                // String
-//                articleValue = type.cast(value);
-//            }
-//            declaredField.set(article, articleValue);
-//        } catch (NoSuchFieldException | IllegalAccessException e) {
-//            return ExactlyResponseEntity.create(Void.class)
-//                    .fail("key is invalid")
-//                    .build();
-//        } catch (ClassCastException e) {
-//            return ExactlyResponseEntity.create(Void.class)
-//                    .fail("value is invalid")
-//                    .build();
-//        } catch (NumberFormatException e) {
-//            return ExactlyResponseEntity.create(Void.class)
-//                    .fail("please give a valid timestamp")
-//                    .build();
-//        }
-//
-//        try {
-//            // 设置id
-//            article.setId(Integer.parseInt(id));
-//            articleService.modifyArticle(article);
-//        } catch (NumberFormatException e) {
-//            return ExactlyResponseEntity.create(Void.class)
-//                    .fail("id must be a number")
-//                    .build();
-//        } catch (NoSuchElementException e) {
-//            return ExactlyResponseEntity.create(Void.class)
-//                    .fail("no such article can be found")
-//                    .build();
-//        }
-//
-//        return ExactlyResponseEntity.create(Void.class)
-//                .success()
-//                .build();
-//    }
-//
+
+    /**
+     * 修改文章
+     * @param id 文章id
+     * @param title 文章标题
+     * @param articleType 文章类型
+     * @param body 文章内容
+     * @param sourceUrl 文章来源url
+     * @param source 文章来源
+     * @param weight 文章权重
+     * @param keyword 文章关键字
+     * @param isDelete 是否被删除
+     * @param imgUrl 文章图片url
+     */
     @PostMapping("/modify")
-    public ExactlyResponseEntity<Void> updateArticle(@RequestParam Integer id,
+    public ResBean<Void> updateArticle(@RequestParam Integer id,
                                                      @RequestParam(required = false) String title,
                                                      @RequestParam(required = false) Integer articleType,
                                                      @RequestParam(required = false) String body,
@@ -191,6 +124,7 @@ public class ArticleController {
         article.setBody(body);
         article.setSourceUrl(sourceUrl);
         article.setSource(source);
+        article.setUpdatedAt(new Timestamp(System.currentTimeMillis()));
         if (weight != null) {
             article.setWeight(BigDecimal.valueOf(weight));
         }
@@ -202,9 +136,9 @@ public class ArticleController {
         try {
             articleService.modifyArticle(article);
         } catch (NoSuchElementException e) {
-            return ExactlyResponseEntity.emptyBodyFail("未找到目标文章");
+            return ResBean.failWithMsg("没有找到目标文章");
         }
-        return ExactlyResponseEntity.emptyBodySuccess();
+        return ResBean.success();
     }
 
     /**
@@ -214,26 +148,33 @@ public class ArticleController {
      * @return List<Article>，文章列表
      */
     @GetMapping("/list")
-    public ExactlyResponseEntity<?> multiplyGet(@RequestParam Integer index,
+    public ResBean<List<Article>> multiplyGet(@RequestParam Integer index,
                                                             @RequestParam(defaultValue = "10", required = false) Integer max) {
         // 生成类型
         if (index <= 0) {
-            return ExactlyResponseEntity.failUnknown("索引的值无效");
+            return ResBean.failWithMsg("索引的值无效");
         }
         List<Article> articles = articleService.getArticles(index, max);
         if (articles == null) {
-            return ExactlyResponseEntity.failUnknown("指定的页码太大");
+            return ResBean.failWithMsg("指定的页码太大");
         }
 
-        return ExactlyResponseEntity.successWithBody(articles);
+        return ResBean.successWithObj(articles);
     }
 
+    /**
+     * 搜索文章
+     * @param keyword 文章关键字
+     * @param index 页码数
+     * @param max 一页最大的显示量
+     * @return 文章列表
+     */
     @GetMapping("/search")
-    public ExactlyResponseEntity<?> search(@RequestParam String keyword,
+    public ResBean<List<Article>> search(@RequestParam String keyword,
                                            @RequestParam(required = false, defaultValue = "1") Integer index,
                                            @RequestParam(required = false, defaultValue = "10") Integer max) {
         max = max > 100 ? 100 : max;
-        return ExactlyResponseEntity.successWithBody(articleService.search(keyword, index, max));
+        return ResBean.successWithObj(articleService.search(keyword, index, max));
     }
 
 }
