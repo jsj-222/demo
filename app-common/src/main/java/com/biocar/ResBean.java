@@ -11,12 +11,12 @@ import lombok.Data;
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class ResBean<T> {
 
-    private static final String SUCCESS_CODE = "20000";
+    private static final int SUCCESS_CODE = 20000;
 
     /**
      * 返回code码，20000成功，其他失败
      */
-    private String code;
+    private int code;
 
     /**
      * 对code的描述
@@ -28,6 +28,7 @@ public class ResBean<T> {
      */
     @JsonInclude(JsonInclude.Include.NON_NULL)
     private T data;
+
 
     /**
      * 成功返回
@@ -53,19 +54,18 @@ public class ResBean<T> {
      */
     public static <T> ResBean<T> failWithMsg(String errorMsg) {
         ResBean<T> resBean = new ResBean<>();
-        resBean.setCode("0");
+        resBean.setCode(0);
         resBean.setMessage(errorMsg);
         return resBean;
     }
 
     /**
      * 错误返回携带数据体
-     * @param errorCode 错误码
      * @param data 响应数据
      */
-    public static <T> ResBean<T> failWithObj(String errorCode, T data) {
+    public static <T> ResBean<T> failWithObj(T data) {
         ResBean<T> resBean = new ResBean<>();
-        resBean.setCode(errorCode);
+        resBean.setCode(0);
         resBean.setMessage("fail");
         resBean.setData(data);
         return resBean;

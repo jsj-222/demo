@@ -7,6 +7,7 @@ target/
 /config/device.json
 logs
 /cache/*
+app-core/config/*
 
 ### STS ###
 .apt_generated
