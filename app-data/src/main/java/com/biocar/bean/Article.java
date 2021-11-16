@@ -64,7 +64,7 @@ public class Article {
     private Integer viewCount;
 
     /**
-     * 开始时间, 毫秒级别时间戳
+     * 开始时间,毫秒级别时间戳(返回类型为字符串)
      */
     @TableField("started_at")
     @JsonDeserialize(using = TimestampDeserializer.class)
@@ -72,7 +72,7 @@ public class Article {
     private Timestamp startedAt;
 
     /**
-     * 权重
+     * 权重, 可以理解为double数据
      */
     @TableField()
     private BigDecimal weight;
@@ -96,7 +96,7 @@ public class Article {
     private Integer isDelete;
 
     /**
-     * 创建于, 返回毫秒级别时间戳
+     * 创建于,返回毫秒级别时间戳(返回类型为字符串)
      */
     @TableField("created_at")
     @JsonDeserialize(using = TimestampDeserializer.class)
@@ -104,7 +104,7 @@ public class Article {
     private Timestamp createdAt;
 
     /**
-     * 更新于，返回毫秒级别时间戳
+     * 更新于,返回毫秒级别时间戳(返回类型为字符串)
      */
     @TableField("updated_at")
     @JsonDeserialize(using = TimestampDeserializer.class)

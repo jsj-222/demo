@@ -6,7 +6,9 @@ import com.biocar.service.ArticleService;
 import com.biocar.service.EsArticleService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
+import java.io.IOException;
 import java.util.Collections;
 import java.util.List;
 import java.util.NoSuchElementException;
@@ -43,7 +45,8 @@ public class ArticleServiceImpl implements ArticleService {
 
     @Override
     public List<Article> getArticles(int index, int maxCount) {
-        List<Article> articles = articleMapper.selectByPage(index, maxCount);
+        // mysql分页从0开始, 这里需要减1
+        List<Article> articles = articleMapper.selectByPage(index -1, maxCount);
         if (articles.size() == 0) {
             return null;
         }
@@ -60,9 +63,16 @@ public class ArticleServiceImpl implements ArticleService {
 
     }
 
+    @Transactional(rollbackFor = RuntimeException.class)
     @Override
     public Long addArticle(Article article) {
         articleMapper.insert(article);
+        try {
+            esArticleService.addArticle(String.valueOf(article.getId()), article.getTitle(), article.getBody());
+        } catch (IOException e) {
+            // 用于回滚
+            throw new RuntimeException(e);
+        }
         return article.getId();
     }
 
@@ -77,7 +87,13 @@ public class ArticleServiceImpl implements ArticleService {
 
     @Override
     public List<Article> search(String keyword, int index, int max) {
-        List<Long> search = esArticleService.search(keyword, index, max);
+        // es分页从0开始
+        List<Long> search;
+        try {
+            search = esArticleService.search(keyword, index - 1, max);
+        } catch (IOException e) {
+            return Collections.emptyList();
+        }
         if (search.size() == 0) {
             return Collections.emptyList();
         }

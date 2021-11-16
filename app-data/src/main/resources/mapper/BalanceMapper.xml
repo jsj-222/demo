@@ -5,26 +5,33 @@
 <mapper namespace="com.biocar.mapper.BalanceMapper">
 
 
-
     <select id="getBalanceByOfTheDay" resultType="double">
         SELECT SUM(IF (balance_type = 1 , revenue, -revenue))
         FROM t_balance
         WHERE `date` = #{date}
     </select>
 
-    <select id="getTotalBalanceIn" resultType="java.util.Map">
-        SELECT b.id, b.date, b.revenue, b.master, b.note ,p.name AS 'projectName'
+    <select id="getTotalBalanceIn" resultType="com.biocar.response.BalanceDetail">
+        SELECT b.id, b.date, b.revenue, b.master, b.note, b.balance_type ,p.name AS 'projectName'
         FROM t_balance AS b
         LEFT JOIN t_project AS p
         ON b.id = p.id
         WHERE balance_type = 1 AND `DATE` = #{date}
     </select>
-    <select id="getTotalBalanceOut" resultType="java.util.Map">
-        SELECT b.id, b.date, b.revenue, b.master, b.note ,p.name AS 'projectName'
+    <select id="getTotalBalanceOut" resultType="com.biocar.response.BalanceDetail">
+        SELECT b.id, b.date, b.revenue, b.master, b.note, b.balance_type ,p.name AS 'projectName'
         FROM t_balance AS b
         LEFT JOIN t_project AS p
         ON b.id = p.id
         WHERE balance_type = 0 AND `DATE` = #{date}
+    </select>
+
+    <select id="getBalanceById" resultType="com.biocar.response.BalanceDetail">
+        SELECT b.id, b.date, b.revenue, b.master, b.note, b.balance_type ,p.name AS 'projectName'
+        FROM t_balance AS b
+        LEFT JOIN t_project AS p
+        ON b.id = p.id
+        WHERE b.id = #{id}
     </select>
 
 </mapper>

@@ -1,24 +1,29 @@
 package com.biocar.controller;
 
-import com.biocar.ExactlyResponseEntity;
+import com.biocar.ResBean;
+import com.biocar.bean.Balance;
+import com.biocar.response.BalanceDetail;
 import com.biocar.service.BalanceService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.context.annotation.Description;
+import org.springframework.web.bind.annotation.*;
 
+import java.math.BigDecimal;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.List;
+import java.util.NoSuchElementException;
 
 /**
+ * 账单接口
+ * @menu 账单接口
  * @author DeSen Xu
  * @date 2021-11-11 16:19
  */
 @RequestMapping("/balance")
 @RestController
+@CrossOrigin
 public class BalanceController {
 
     private BalanceService balanceService;
@@ -28,27 +33,195 @@ public class BalanceController {
         this.balanceService = balanceService;
     }
 
-    @GetMapping("/sum")
-    public ExactlyResponseEntity<Double> getBalanceOfTheDay(@RequestParam String date) {
-        SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd");
-        Date parsedDate;
-        try {
-            parsedDate = simpleDateFormat.parse(date);
-        } catch (ParseException e) {
-            return ExactlyResponseEntity.create(HttpStatus.BAD_REQUEST.value(), Double.class)
-                    .fail("参数有误, 正确参数如: 2021-11-11")
-                    .build();
-        }
-        Double balanceOfTheDay = balanceService.getBalanceOfTheDay(parsedDate);
-        if (balanceOfTheDay == null) {
-            return ExactlyResponseEntity.create(Double.class)
-                    .fail("该日期下没有可用的账单")
-                    .build();
-        }
-        return ExactlyResponseEntity.create(Double.class)
-                .data(balanceOfTheDay)
-                .build();
+
+    private Date parseDate(String date) throws ParseException {
+        String pattern = "yyyy-MM-dd";
+        SimpleDateFormat simpleDateFormat = new SimpleDateFormat(pattern);
+        return simpleDateFormat.parse(date);
     }
+
+    /**
+     * 获取某一天的总收入
+     * @param date 日期, 例如: 2020-11-01
+     * @return 当天的总收入
+     */
+    @GetMapping("/sum")
+    public ResBean<Double> getBalanceOfTheDay(@RequestParam String date) {
+        try {
+            Double balanceOfTheDay = balanceService.getBalanceOfTheDay(parseDate(date));
+            return ResBean.successWithObj(balanceOfTheDay);
+        } catch (NoSuchElementException e) {
+            return ResBean.failWithMsg("没有找到当天的账单");
+        } catch (ParseException e) {
+            return ResBean.failWithMsg("传入的参数有误");
+        }
+    }
+
+    /**
+     * 添加账单
+     * @param date 日期, 例如: 2020-11-01
+     * @param projectId 项目id
+     *                  1: 销货收入 2: 其他收入 3: 零食采购 4: 采购支出 5: 房租 6: 工资
+     *                  7: 利息支出 8: 办公费 9: 水电 10: 运费 11: 招待 12: 其他
+     * @param revenue 当天收入/支出, 不管是收入还是支出, <b>统一提交正数</b>, 在balanceType中声明是支出还是收入
+     * @param note 备注
+     * @param master 该账单的管理人
+     * @param balanceType 账单类型, 0: 支出, 1: 收入 (默认为收入)
+     */
+    @PostMapping("/add")
+    public ResBean<Void> addBalance(@RequestParam String date,
+                                    @RequestParam Integer projectId,
+                                    @RequestParam Double revenue,
+                                    @RequestParam String note,
+                                    @RequestParam String master,
+                                    @RequestParam(required = false, defaultValue = "1") Integer balanceType) {
+
+        try {
+            Balance balance = new Balance(parseDate(date),
+                    projectId,
+                    BigDecimal.valueOf(revenue),
+                    master,
+                    note,
+                    balanceType != 0);
+            balanceService.addBalance(balance);
+            return ResBean.success();
+        } catch (ParseException e) {
+            return ResBean.failWithMsg("传入的参数有误");
+        }
+    }
+
+    /**
+     * 根据id查询账单
+     * @param id 账单id
+     */
+    @GetMapping("/query")
+    public ResBean<BalanceDetail> getBalanceById(@RequestParam Integer id) {
+        BalanceDetail balance = balanceService.getBalanceById(id);
+        if (balance == null) {
+            return ResBean.failWithMsg("未找到该账单");
+        }
+        return ResBean.successWithObj(balance);
+    }
+
+
+    /**
+     * 根据id删除账单
+     * @param id 账单id
+     */
+    @PostMapping("/delete")
+    public ResBean<Void> deleteBalanceById(@RequestParam Integer id) {
+        try {
+            balanceService.deleteBalance(id);
+            return ResBean.success();
+        } catch (NoSuchElementException e) {
+            return ResBean.failWithMsg("未找到该账单");
+        }
+    }
+
+    /**
+     * 获取某一天的总收入
+     * @param date 日期, 如 2021-11-01
+     * @return 总收入
+     */
+    @GetMapping("/in")
+    public ResBean<Double> getBalanceIn(@RequestParam String date) {
+        try {
+            Double balanceIn = balanceService.getBalanceIn(parseDate(date));
+            return ResBean.successWithObj(balanceIn);
+        } catch (ParseException e) {
+            return ResBean.failWithMsg("传入的参数有误");
+        } catch (NoSuchElementException e) {
+            return ResBean.failWithMsg("未找到当天的账单");
+        }
+    }
+
+    /**
+     * 获取某一天的总支出
+     * @param date 日期, 如 2021-11-01
+     * @return 总支出(正数)
+     */
+    @GetMapping("/out")
+    public ResBean<Double> getBalanceOut(@RequestParam String date) {
+        try {
+            double balanceOut = balanceService.getBalanceOut(parseDate(date));
+            return ResBean.successWithObj(balanceOut);
+        } catch (ParseException e) {
+            return ResBean.failWithMsg("传入的参数有误");
+        } catch (NoSuchElementException e) {
+            return ResBean.failWithMsg("未找到当天的账单");
+        }
+    }
+
+    /**
+     * 获取某一天的收入账单列表
+     * @param date 日期, 如 2021-11-01
+     * @return 收入账单列表
+     */
+    @GetMapping("/in/list")
+    public ResBean<List<BalanceDetail>> getBalanceInList(@RequestParam String date) {
+        try {
+            List<BalanceDetail> balanceInList = balanceService.getBalanceInList(parseDate(date));
+            if (balanceInList == null) {
+                return ResBean.failWithMsg("未找到当天的账单");
+            }
+            return ResBean.successWithObj(balanceInList);
+        } catch (ParseException e) {
+            return ResBean.failWithMsg("传入的参数有误");
+        }
+    }
+
+    /**
+     * 获取某一天的支出账单列表
+     * @param date 日期, 如 2021-11-01
+     * @return 支出账单列表
+     */
+    @GetMapping("/out/list")
+    public ResBean<List<BalanceDetail>> getBalanceOutList(@RequestParam String date) {
+        try {
+            List<BalanceDetail> balanceOutList = balanceService.getBalanceOutList(parseDate(date));
+            if (balanceOutList == null) {
+                return ResBean.failWithMsg("未找到当天的账单");
+            }
+            return ResBean.successWithObj(balanceOutList);
+        } catch (ParseException e) {
+            return ResBean.failWithMsg("传入的参数有误");
+        }
+    }
+
+    /**
+     * 更新账单
+     * @param id 账单id
+     * @param projectId 项目id
+     *                  1: 销货收入 2: 其他收入 3: 零食采购 4: 采购支出 5: 房租 6: 工资
+     *                  7: 利息支出 8: 办公费 9: 水电 10: 运费 11: 招待 12: 其他
+     * @param revenue 收入/支出 (正数)
+     * @param master 负责人
+     * @param note 备注
+     * @param balanceType 账单类型, 0: 支出, 1:收入
+     */
+    @PostMapping("/update")
+    public ResBean<Void> updateBalance(@RequestParam Integer id,
+                                       @RequestParam(required = false) Integer projectId,
+                                       @RequestParam(required = false) Double revenue,
+                                       @RequestParam(required = false) String master,
+                                       @RequestParam(required = false) String note,
+                                       @RequestParam(required = false) Integer balanceType) {
+        Balance balance = new Balance();
+        balance.setId(id);
+        balance.setProjectId(projectId);
+        balance.setRevenue(revenue == null ? null : BigDecimal.valueOf(revenue));
+        balance.setMaster(master);
+        balance.setNote(note);
+        balance.setBalanceType(balanceType != 0);
+        try {
+            balanceService.updateBalance(balance);
+            return ResBean.success();
+        } catch (NoSuchElementException e) {
+            return ResBean.failWithMsg("无法找到该账单");
+        }
+    }
+
+
 
 
 }

@@ -14,7 +14,9 @@ import java.util.List;
 import java.util.NoSuchElementException;
 
 /**
+ * 文章接口
  * @author DeSen Xu
+ * @menu 文章接口
  * @date 2021-11-07 11:41
  */
 @RestController
@@ -49,7 +51,7 @@ public class ArticleController {
      * @param id 文章id
      */
     @PostMapping("/delete")
-    public ResBean<Void> deleteArticle(@RequestParam("文章id") String id) {
+    public ResBean<Void> deleteArticle(@RequestParam String id) {
         try {
             articleService.deleteArticle(id);
             return ResBean.successWithObj(null);
@@ -59,7 +61,16 @@ public class ArticleController {
     }
 
     /**
-     * 添加
+     * 添加文章
+     * @param title 文章标题
+     * @param body 文章内容
+     * @param source 文章来源
+     * @param weight 文章权重
+     * @param keyword 文章关键字
+     * @param imgUrl 图片url
+     * @param sourceUrl 文章来源url
+     * @param articleType 文章类型
+     * @return 添加成功后，文章的id
      */
     @PostMapping("/insert")
     public ResBean<Long> addArticle(@RequestParam String title,

@@ -23,7 +23,7 @@ public interface ArticleService {
 
     /**
      * 文章分页获取
-     * @param index 第几页, 最小为0
+     * @param index 第几页, 最小为1
      * @param maxCount 每页的最大显示数, 最大为100
      * @return 文章列表
      */
@@ -54,7 +54,7 @@ public interface ArticleService {
     /**
      * 搜索文章
      * @param keyword 文章关键字
-     * @param index 显示第几页, 最小为0
+     * @param index 显示第几页, 最小为1
      * @param max 每页最大显示数
      * @return 匹配的文章列表,没有搜索到返回空的List
      */

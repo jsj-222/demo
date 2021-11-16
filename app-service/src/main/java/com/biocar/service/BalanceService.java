@@ -1,11 +1,11 @@
 package com.biocar.service;
 
 import com.biocar.bean.Balance;
+import com.biocar.response.BalanceDetail;
 import org.springframework.lang.Nullable;
 
 import java.util.Date;
 import java.util.List;
-import java.util.Map;
 import java.util.NoSuchElementException;
 
 /**
@@ -19,26 +19,26 @@ public interface BalanceService {
      * 获取某一天的净收入
      * @param date 日期
      * @return 净收入, 若没找到返回null
+     * @throws NoSuchElementException 没有找到当天对应的账单
      */
-    @Nullable
-    Double getBalanceOfTheDay(Date date);
+    double getBalanceOfTheDay(Date date) throws NoSuchElementException;
 
 
     /**
      * 获取某一天的总收入
      * @param date 日期
-     * @return 总收入, 若没找到返回null
+     * @return 总收入
+     * @throws NoSuchElementException 没有找到当天对应的账单
      */
-    @Nullable
-    Double getBalanceIn(Date date);
+    double getBalanceIn(Date date) throws NoSuchElementException;
 
     /**
      * 获取某一天的总支出
      * @param date 日期
-     * @return 总支出，若没找到返回null
+     * @return 总支出
+     * @throws NoSuchElementException 没有找到当天对应的账单
      */
-    @Nullable
-    Double getBalanceOut(Date date);
+    double getBalanceOut(Date date) throws NoSuchElementException;
 
     /**
      * 获取一天的收入详细清单
@@ -47,7 +47,7 @@ public interface BalanceService {
      * @see com.biocar.mapper.BalanceMapper
      */
     @Nullable
-    List<Map<String, Object>> getTotalBalanceIn(Date date);
+    List<BalanceDetail> getBalanceInList(Date date);
 
     /**
      * 获取一天的支出详细清单
@@ -56,7 +56,7 @@ public interface BalanceService {
      * @see com.biocar.mapper.BalanceMapper
      */
     @Nullable
-    List<Map<String, Object>> getTotalBalanceOut(Date date);
+    List<BalanceDetail> getBalanceOutList(Date date);
 
     /**
      * 添加一个账单
@@ -84,5 +84,5 @@ public interface BalanceService {
      * @return 账单信息
      */
     @Nullable
-    Balance getBalanceById(int id);
+    BalanceDetail getBalanceById(int id);
 }

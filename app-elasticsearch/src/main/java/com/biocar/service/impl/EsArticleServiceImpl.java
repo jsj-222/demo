@@ -3,6 +3,8 @@ package com.biocar.service.impl;
 import com.biocar.index.ArticleIndex;
 import com.biocar.service.EsArticleService;
 import lombok.SneakyThrows;
+import org.elasticsearch.action.index.IndexRequest;
+import org.elasticsearch.action.index.IndexResponse;
 import org.elasticsearch.action.search.SearchRequest;
 import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.client.RequestOptions;
@@ -17,6 +19,7 @@ import org.springframework.stereotype.Service;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
 
 /**
@@ -35,9 +38,8 @@ public class EsArticleServiceImpl implements EsArticleService {
         this.client = client;
     }
 
-    @SneakyThrows
     @Override
-    public List<Long> search(String keyword, int index, int max) {
+    public List<Long> search(String keyword, int index, int max) throws IOException {
         SearchRequest article = new SearchRequest(ArticleIndex.INDEX_NAME);
         article.source(new SearchSourceBuilder()
                 .fetchSource(new FetchSourceContext(false))
@@ -58,5 +60,18 @@ public class EsArticleServiceImpl implements EsArticleService {
             ids.add(Long.valueOf(hit.getId()));
         }
         return ids;
+    }
+
+    @Override
+    public void addArticle(String id, String title, String body) throws IOException {
+        IndexRequest indexRequest = new IndexRequest(ArticleIndex.INDEX_NAME);
+        HashMap<String, String> source = new HashMap<>(2);
+        source.put(ArticleIndex.COLUMN_TITLE, title);
+        source.put(ArticleIndex.COLUMN_BODY, body);
+        source.put("k", body);
+        indexRequest.source(source)
+                .id(id);
+
+        client.index(indexRequest, RequestOptions.DEFAULT);
     }
 }

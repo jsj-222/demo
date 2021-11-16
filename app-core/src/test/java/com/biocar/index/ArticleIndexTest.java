@@ -74,9 +74,14 @@ public class ArticleIndexTest {
     }
 
     @Test
-    public void search(){
+    public void search() throws IOException {
         // ? ? ? 92 127 93
         System.out.println(esArticleService.search("新冠", 0, 6));
+    }
+
+    @Test
+    public void insert() throws IOException{
+        esArticleService.addArticle("1", "t", "t");
     }
     
 }

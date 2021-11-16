@@ -2,13 +2,11 @@ package com.biocar.mapper;
 
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import com.biocar.bean.Balance;
+import com.biocar.response.BalanceDetail;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
-import org.springframework.lang.Nullable;
-
 import java.util.Date;
 import java.util.List;
-import java.util.Map;
 
 
 /**
@@ -50,7 +48,7 @@ public interface BalanceMapper extends BaseMapper<Balance> {
      * @return 收入详细清单, KEY为BalanceMapper中的常量, 但COLUMN_PROJECT_ID不可用, ALIAS_PROJECT_NAME可用
      * @see com.biocar.mapper.BalanceMapper
      */
-    List<Map<String, Object>> getTotalBalanceIn(Date date);
+    List<BalanceDetail> getTotalBalanceIn(@Param("date") Date date);
 
     /**
      * 获取一天的支出详细清单
@@ -58,6 +56,13 @@ public interface BalanceMapper extends BaseMapper<Balance> {
      * @return 支出详细清单, KEY为BalanceMapper中的常量, 但COLUMN_PROJECT_ID不可用, ALIAS_PROJECT_NAME可用
      * @see com.biocar.mapper.BalanceMapper
      */
-    List<Map<String, Object>> getTotalBalanceOut(Date date);
+    List<BalanceDetail> getTotalBalanceOut(@Param("date") Date date);
+
+    /**
+     * 根据id获取账单
+     * @param id 账单id
+     * @return 账单信息
+     */
+    BalanceDetail getBalanceById(@Param("id") int id);
 
 }

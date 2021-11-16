@@ -3,6 +3,7 @@ package com.biocar.service.impl;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.biocar.bean.Balance;
 import com.biocar.mapper.BalanceMapper;
+import com.biocar.response.BalanceDetail;
 import com.biocar.service.BalanceService;
 import com.biocar.utils.WrapperUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -10,7 +11,6 @@ import org.springframework.stereotype.Service;
 
 import java.util.Date;
 import java.util.List;
-import java.util.Map;
 import java.util.NoSuchElementException;
 
 /**
@@ -28,44 +28,55 @@ public class BalanceServiceImpl implements BalanceService {
     }
 
     @Override
-    public Double getBalanceOfTheDay(Date date) {
-        return balanceMapper.getBalanceByOfTheDay(date);
+    public double getBalanceOfTheDay(Date date) {
+        Double balanceByOfTheDay = balanceMapper.getBalanceByOfTheDay(date);
+        if (balanceByOfTheDay == null) {
+            throw new NoSuchElementException();
+        } else {
+            return balanceByOfTheDay;
+        }
     }
 
     @Override
-    public Double getBalanceIn(Date date) {
+    public double getBalanceIn(Date date) {
         List<Object> objects = balanceMapper.selectObjs(new QueryWrapper<Balance>()
                 .select(WrapperUtils.sum(BalanceMapper.COLUMN_REVENUE))
                 .eq(BalanceMapper.COLUMN_BALANCE_TYPE, true)
                 .eq(BalanceMapper.COLUMN_DATE, date));
         if (objects.size() == 0) {
-            return null;
+            throw new NoSuchElementException();
         }
         return (Double) objects.get(0);
     }
 
     @Override
-    public Double getBalanceOut(Date date) {
+    public double getBalanceOut(Date date) {
         List<Object> objects = balanceMapper.selectObjs(new QueryWrapper<Balance>()
                 .select(WrapperUtils.sum(BalanceMapper.COLUMN_REVENUE))
                 .eq(BalanceMapper.COLUMN_BALANCE_TYPE, false)
                 .eq(BalanceMapper.COLUMN_DATE, date));
         if (objects.size() == 0) {
-            return null;
+            throw new NoSuchElementException();
         }
         return (Double) objects.get(0);
     }
 
     @Override
-    public List<Map<String, Object>> getTotalBalanceIn(Date date) {
-        List<Map<String, Object>> totalBalanceIn = balanceMapper.getTotalBalanceIn(date);
-        return totalBalanceIn.size() == 0 ? null : totalBalanceIn;
+    public List<BalanceDetail> getBalanceInList(Date date) {
+        List<BalanceDetail> totalBalanceIn = balanceMapper.getTotalBalanceIn(date);
+        if (totalBalanceIn.size() == 0) {
+            return null;
+        }
+        return totalBalanceIn;
     }
 
     @Override
-    public List<Map<String, Object>> getTotalBalanceOut(Date date) {
-        List<Map<String, Object>> totalBalanceOut = balanceMapper.getTotalBalanceOut(date);
-        return totalBalanceOut.size() == 0 ? null : totalBalanceOut;
+    public List<BalanceDetail> getBalanceOutList(Date date) {
+        List<BalanceDetail> totalBalanceOut = balanceMapper.getTotalBalanceOut(date);
+        if (totalBalanceOut.size() == 0) {
+            return null;
+        }
+        return totalBalanceOut;
     }
 
     @Override
@@ -90,7 +101,7 @@ public class BalanceServiceImpl implements BalanceService {
     }
 
     @Override
-    public Balance getBalanceById(int id) {
-        return balanceMapper.selectById(id);
+    public BalanceDetail getBalanceById(int id) {
+        return balanceMapper.getBalanceById(id);
     }
 }
