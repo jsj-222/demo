@@ -1,4 +1,4 @@
-package com.biocar.common;
+package com.biocar.serializer;
 
 
 import com.fasterxml.jackson.core.JsonGenerator;
@@ -9,6 +9,8 @@ import java.io.IOException;
 import java.sql.Timestamp;
 
 /**
+ * 序列化时间戳
+ * Timestamp -> 毫秒级时间戳
  * @author DeSen Xu
  * @date 2021-11-08 10:14
  */

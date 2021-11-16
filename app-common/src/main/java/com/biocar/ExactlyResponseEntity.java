@@ -8,7 +8,7 @@ import org.springframework.util.MultiValueMap;
 
 /**
  * 配合CommonResponse来创建响应
- * @see CommonResponse
+ * @see ResBean
  * @author DeSen Xu
  * @date 2021-11-04 20:38
  */

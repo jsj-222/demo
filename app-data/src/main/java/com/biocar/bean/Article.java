@@ -4,7 +4,9 @@ import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
-import com.biocar.common.TimestampSerializer;
+import com.biocar.serializer.TimestampDeserializer;
+import com.biocar.serializer.TimestampSerializer;
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import lombok.Data;
 
@@ -23,7 +25,7 @@ public class Article {
      * 文章id
      */
     @TableId(type = IdType.AUTO)
-    private Integer id;
+    private Long id;
 
     /**
      * 文章标题
@@ -65,6 +67,7 @@ public class Article {
      * 开始时间, 毫秒级别时间戳
      */
     @TableField("started_at")
+    @JsonDeserialize(using = TimestampDeserializer.class)
     @JsonSerialize(using = TimestampSerializer.class)
     private Timestamp startedAt;
 
@@ -96,6 +99,7 @@ public class Article {
      * 创建于, 返回毫秒级别时间戳
      */
     @TableField("created_at")
+    @JsonDeserialize(using = TimestampDeserializer.class)
     @JsonSerialize(using = TimestampSerializer.class)
     private Timestamp createdAt;
 
@@ -103,6 +107,7 @@ public class Article {
      * 更新于，返回毫秒级别时间戳
      */
     @TableField("updated_at")
+    @JsonDeserialize(using = TimestampDeserializer.class)
     @JsonSerialize(using = TimestampSerializer.class)
     private Timestamp updatedAt;
 

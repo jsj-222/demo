@@ -5,6 +5,8 @@ import com.biocar.bean.Article;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 
+import java.util.LinkedHashSet;
+import java.util.LinkedList;
 import java.util.List;
 
 /**
@@ -18,6 +20,7 @@ public interface ArticleMapper extends BaseMapper<Article> {
 
     String COLUMN_TITLE = "title";
 
+    String COLUMN_BODY = "body";
 
     /**
      * 分页获取文章
@@ -28,11 +31,12 @@ public interface ArticleMapper extends BaseMapper<Article> {
     List<Article> selectByPage(@Param("index") int index, @Param("max") int max);
 
     /**
-     * 搜索文章
-     * @param keyword 文章关键字
-     * @param index 显示第几页
-     * @param max 每页最大显示数
-     * @return 匹配的文章列表
+     * 根据id获取多篇文章
+     * 由于使用foreach具有性能问题, 需要自己拼接sql
+     * 详细可见: https://cloud.tencent.com/developer/article/1632378
+     * @param whereSql 多篇文章的查询sql
+     *                 示例: id IN (1, 2, 3, 4)
+     * @return 匹配的文章列表, 使用
      */
-    List<Article> search(@Param("keyword") String keyword,@Param("index") int index,@Param("max") int max);
+    List<Article> search(@Param("whereSql") String whereSql);
 }

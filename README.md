@@ -60,3 +60,5 @@ server:
 **app-data**: 与数据库交互的模块
 
 **app-common**: 工具类
+
+**app-elasticsearch**: 与elasticsearch交互的模块

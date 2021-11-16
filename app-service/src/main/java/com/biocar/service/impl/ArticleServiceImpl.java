@@ -1,13 +1,13 @@
 package com.biocar.service.impl;
 
-import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.biocar.bean.Article;
 import com.biocar.mapper.ArticleMapper;
 import com.biocar.service.ArticleService;
-import com.biocar.utils.WrapperUtils;
+import com.biocar.service.EsArticleService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.NoSuchElementException;
 
@@ -19,6 +19,13 @@ import java.util.NoSuchElementException;
 public class ArticleServiceImpl implements ArticleService {
 
     private ArticleMapper articleMapper;
+
+    private EsArticleService esArticleService;
+
+    @Autowired
+    public void setEsArticleService(EsArticleService esArticleService) {
+        this.esArticleService = esArticleService;
+    }
 
     @Autowired
     public void setArticleMapper(ArticleMapper articleMapper) {
@@ -36,12 +43,6 @@ public class ArticleServiceImpl implements ArticleService {
 
     @Override
     public List<Article> getArticles(int index, int maxCount) {
-        if (index < 0) {
-            throw new IllegalArgumentException("index can not less than 0");
-        }
-        if (maxCount > 100) {
-            throw new IllegalArgumentException("article count can not more than 100");
-        }
         List<Article> articles = articleMapper.selectByPage(index, maxCount);
         if (articles.size() == 0) {
             return null;
@@ -60,7 +61,7 @@ public class ArticleServiceImpl implements ArticleService {
     }
 
     @Override
-    public int addArticle(Article article) {
+    public Long addArticle(Article article) {
         articleMapper.insert(article);
         return article.getId();
     }
@@ -76,6 +77,32 @@ public class ArticleServiceImpl implements ArticleService {
 
     @Override
     public List<Article> search(String keyword, int index, int max) {
-        return articleMapper.search(keyword, index, max);
+        List<Long> search = esArticleService.search(keyword, index, max);
+        if (search.size() == 0) {
+            return Collections.emptyList();
+        }
+        return articleMapper.search(concatSearchWhereSql(search));
     }
+
+    /**
+     * 拼接搜索时的whereSql语句
+     * @param ids id列表
+     * @return 类似于: id IN (1,2,3,4)
+     */
+    private String concatSearchWhereSql(List<Long> ids) {
+        // 拼接where语句, 此处不用考虑sql注入
+        StringBuilder whereSql = new StringBuilder(ids.size() * 8);
+        whereSql.append(ArticleMapper.COLUMN_ID)
+                .append(" IN (");
+        for (Long id : ids) {
+            whereSql.append(id)
+                    .append(",");
+        }
+        // 删除多余逗号以及添加右括号
+        whereSql.deleteCharAt(whereSql.length() - 1)
+                .append(")");
+        return whereSql.toString();
+    }
+
+
 }

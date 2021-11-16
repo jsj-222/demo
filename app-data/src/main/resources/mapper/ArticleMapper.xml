@@ -8,10 +8,13 @@
         SELECT * FROM articles
         LIMIT ${(index - 1) * max}, #{max}
     </select>
+
     <select id="search" resultType="com.biocar.bean.Article">
-        SELECT * FROM articles
-        WHERE title LIKE CONCAT(CONCAT('%', #{keyword}), '%')
-        LIMIT ${(index - 1) * max}, #{max}
+        SELECT *
+        FROM articles
+        WHERE ${whereSql}
+        ORDER BY weight DESC , view_count DESC
     </select>
+
 
 </mapper>

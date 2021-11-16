@@ -21,10 +21,6 @@
             <groupId>com.biocar</groupId>
             <artifactId>app-service</artifactId>
         </dependency>
-        <dependency>
-            <groupId>com.biocar</groupId>
-            <artifactId>app-common</artifactId>
-        </dependency>
     </dependencies>
 
 </project>

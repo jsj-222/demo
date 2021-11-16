@@ -21,6 +21,10 @@
             <groupId>com.biocar</groupId>
             <artifactId>app-data</artifactId>
         </dependency>
+        <dependency>
+            <groupId>com.biocar</groupId>
+            <artifactId>app-elasticsearch</artifactId>
+        </dependency>
     </dependencies>
 
 </project>

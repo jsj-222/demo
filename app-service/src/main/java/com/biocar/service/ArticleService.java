@@ -42,7 +42,7 @@ public interface ArticleService {
      * @param article 文章信息
      * @return 新添文章的id
      */
-    int addArticle(Article article);
+    Long addArticle(Article article);
 
     /**
      * 删除文章
@@ -54,9 +54,9 @@ public interface ArticleService {
     /**
      * 搜索文章
      * @param keyword 文章关键字
-     * @param index 显示第几页
+     * @param index 显示第几页, 最小为0
      * @param max 每页最大显示数
-     * @return 匹配的文章列表
+     * @return 匹配的文章列表,没有搜索到返回空的List
      */
     List<Article> search(String keyword, int index, int max);
 

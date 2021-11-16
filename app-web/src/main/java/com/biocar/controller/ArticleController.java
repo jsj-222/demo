@@ -2,6 +2,7 @@ package com.biocar.controller;
 
 import com.biocar.ResBean;
 import com.biocar.bean.Article;
+import com.biocar.enums.ArticleParamSizeLimiter;
 import com.biocar.service.ArticleService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
@@ -61,7 +62,7 @@ public class ArticleController {
      * 添加
      */
     @PostMapping("/insert")
-    public ResBean<Integer> addArticle(@RequestParam String title,
+    public ResBean<Long> addArticle(@RequestParam String title,
                                                      @RequestParam String body,
                                                      @RequestParam String source,
                                                      @RequestParam(required = false) String weight,
@@ -87,7 +88,7 @@ public class ArticleController {
         article.setCreatedAt(now);
         article.setUpdatedAt(now);
 
-        int id = articleService.addArticle(article);
+        Long id = articleService.addArticle(article);
         return ResBean.successWithObj(id);
 
     }
@@ -107,7 +108,7 @@ public class ArticleController {
      * @param imgUrl 文章图片url
      */
     @PostMapping("/modify")
-    public ResBean<Void> updateArticle(@RequestParam Integer id,
+    public ResBean<Void> updateArticle(@RequestParam Long id,
                                                      @RequestParam(required = false) String title,
                                                      @RequestParam(required = false) Integer articleType,
                                                      @RequestParam(required = false) String body,
@@ -150,9 +151,11 @@ public class ArticleController {
     @GetMapping("/list")
     public ResBean<List<Article>> multiplyGet(@RequestParam Integer index,
                                                             @RequestParam(defaultValue = "10", required = false) Integer max) {
-        // 生成类型
-        if (index <= 0) {
-            return ResBean.failWithMsg("索引的值无效");
+        if (ArticleParamSizeLimiter.SEARCH_SIZE_LIMIT.isUnsatisfied(max)) {
+            return ResBean.failWithMsg("每页的显示量不符合要求");
+        }
+        if (ArticleParamSizeLimiter.SEARCH_INDEX_LIMIT.isUnsatisfied(index)) {
+            return ResBean.failWithMsg("给定的索引值有误");
         }
         List<Article> articles = articleService.getArticles(index, max);
         if (articles == null) {
@@ -165,15 +168,20 @@ public class ArticleController {
     /**
      * 搜索文章
      * @param keyword 文章关键字
-     * @param index 页码数
-     * @param max 一页最大的显示量
-     * @return 文章列表
+     * @param index 页码数, 最小为0
+     * @param max 一页最大的显示量, 最大为100
+     * @return 文章列表, 搜索结果根据搜索关键字排序
      */
     @GetMapping("/search")
     public ResBean<List<Article>> search(@RequestParam String keyword,
-                                           @RequestParam(required = false, defaultValue = "1") Integer index,
+                                           @RequestParam(required = false, defaultValue = "0") Integer index,
                                            @RequestParam(required = false, defaultValue = "10") Integer max) {
-        max = max > 100 ? 100 : max;
+        if (ArticleParamSizeLimiter.SEARCH_SIZE_LIMIT.isUnsatisfied(max)) {
+            return ResBean.failWithMsg("每页的显示量不符合要求");
+        }
+        if (ArticleParamSizeLimiter.SEARCH_INDEX_LIMIT.isUnsatisfied(index)) {
+            return ResBean.failWithMsg("给定的索引值有误");
+        }
         return ResBean.successWithObj(articleService.search(keyword, index, max));
     }
 
