@@ -49,7 +49,7 @@ public interface ArticleService {
      * @param id 文章id
      * @throws NoSuchElementException 没有找到目标文章
      */
-    void deleteArticle(String id) throws NoSuchElementException;
+    void deleteArticle(int id) throws NoSuchElementException;
 
     /**
      * 搜索文章

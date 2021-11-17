@@ -13,7 +13,7 @@ public enum ArticleParamSizeLimiter {
     /**
      * 分页时, 所选页码数的限制
      */
-    SEARCH_INDEX_LIMIT(0, Integer.MAX_VALUE)
+    SEARCH_INDEX_LIMIT(1, Integer.MAX_VALUE)
     ;
 
     /**

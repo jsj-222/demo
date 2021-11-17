@@ -46,7 +46,7 @@ public class ArticleServiceImpl implements ArticleService {
     @Override
     public List<Article> getArticles(int index, int maxCount) {
         // mysql分页从0开始, 这里需要减1
-        List<Article> articles = articleMapper.selectByPage(index -1, maxCount);
+        List<Article> articles = articleMapper.selectByPage(index, maxCount);
         if (articles.size() == 0) {
             return null;
         }
@@ -84,10 +84,10 @@ public class ArticleServiceImpl implements ArticleService {
 
     @Transactional(rollbackFor = RuntimeException.class)
     @Override
-    public void deleteArticle(String id) throws NoSuchElementException {
+    public void deleteArticle(int id) throws NoSuchElementException {
        int i= articleMapper.deleteById(id);
         try {
-            esArticleService.deleteArticle(id);
+            esArticleService.deleteArticle(String.valueOf(id));
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
