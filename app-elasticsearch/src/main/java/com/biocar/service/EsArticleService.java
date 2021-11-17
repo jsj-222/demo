@@ -2,6 +2,7 @@ package com.biocar.service;
 
 import java.io.IOException;
 import java.util.List;
+import java.util.NoSuchElementException;
 
 /**
  * @author DeSen Xu
@@ -25,6 +26,25 @@ public interface EsArticleService {
      * @param title 文章标题
      * @param body 文章内容
      * @throws IOException 连接服务器失败
+     * @throws IllegalStateException 暂且未知
      */
-    void addArticle(String id, String title, String body) throws IOException;
+    void addArticle(String id, String title, String body) throws IOException, IllegalStateException;
+
+    /**
+     * 修改文章
+     * @param id 文章id
+     * @param title 文章标题
+     * @param body 文章内容
+     * @throws IOException 连接服务器失败
+     * @throws NoSuchElementException 未找到该文章
+     */
+    void modifyArticle(String id, String title, String body) throws IOException, NoSuchElementException;
+
+    /**
+     * 删除文章
+     * @param id 文章id
+     * @throws IOException 连接服务器失败
+     * @throws NoSuchElementException 未找到该文章
+     */
+    void deleteArticle(String id) throws IOException, NoSuchElementException;
 }

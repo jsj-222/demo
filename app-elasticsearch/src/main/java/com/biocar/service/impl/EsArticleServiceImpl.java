@@ -2,13 +2,21 @@ package com.biocar.service.impl;
 
 import com.biocar.index.ArticleIndex;
 import com.biocar.service.EsArticleService;
-import lombok.SneakyThrows;
+import com.biocar.utils.EsUtils;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import org.elasticsearch.ElasticsearchException;
+import org.elasticsearch.ElasticsearchStatusException;
+import org.elasticsearch.action.delete.DeleteRequest;
+import org.elasticsearch.action.delete.DeleteResponse;
 import org.elasticsearch.action.index.IndexRequest;
 import org.elasticsearch.action.index.IndexResponse;
 import org.elasticsearch.action.search.SearchRequest;
 import org.elasticsearch.action.search.SearchResponse;
+import org.elasticsearch.action.update.UpdateRequest;
+import org.elasticsearch.action.update.UpdateResponse;
 import org.elasticsearch.client.RequestOptions;
 import org.elasticsearch.client.RestHighLevelClient;
+import org.elasticsearch.common.xcontent.XContentType;
 import org.elasticsearch.index.query.QueryBuilders;
 import org.elasticsearch.search.SearchHit;
 import org.elasticsearch.search.builder.SearchSourceBuilder;
@@ -17,10 +25,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
+import java.util.*;
 
 /**
  * @author DeSen Xu
@@ -42,8 +47,7 @@ public class EsArticleServiceImpl implements EsArticleService {
     public List<Long> search(String keyword, int index, int max) throws IOException {
         SearchRequest article = new SearchRequest(ArticleIndex.INDEX_NAME);
         article.source(new SearchSourceBuilder()
-                .fetchSource(new FetchSourceContext(false))
-                .storedField(ID_COLUMN)
+                .fetchSource(new FetchSourceContext(false, null, null))
                 .query(QueryBuilders
                         .boolQuery()
                         .must(QueryBuilders.matchQuery(ArticleIndex.COLUMN_TITLE, keyword))
@@ -63,15 +67,48 @@ public class EsArticleServiceImpl implements EsArticleService {
     }
 
     @Override
-    public void addArticle(String id, String title, String body) throws IOException {
+    public void addArticle(String id, String title, String body) throws IOException, IllegalStateException {
         IndexRequest indexRequest = new IndexRequest(ArticleIndex.INDEX_NAME);
-        HashMap<String, String> source = new HashMap<>(2);
+        Map<String, String> source = new HashMap<>(2);
         source.put(ArticleIndex.COLUMN_TITLE, title);
         source.put(ArticleIndex.COLUMN_BODY, body);
-        source.put("k", body);
         indexRequest.source(source)
                 .id(id);
 
-        client.index(indexRequest, RequestOptions.DEFAULT);
+        IndexResponse index = client.index(indexRequest, RequestOptions.DEFAULT);
+        if (EsUtils.checkFail(index)) {
+            throw new IllegalStateException("添加文章失败");
+        }
+    }
+
+    @Override
+    public void modifyArticle(String id, String title, String body) throws IOException, NoSuchElementException {
+        UpdateRequest updateRequest = new UpdateRequest(ArticleIndex.INDEX_NAME, id);
+        Map<String, String> source = new HashMap<>(2);
+        if (title != null) {
+            source.put(ArticleIndex.COLUMN_TITLE, title);
+        }
+        if (body != null) {
+            source.put(ArticleIndex.COLUMN_BODY, body);
+        }
+        updateRequest.doc(new ObjectMapper().writeValueAsString(source), XContentType.JSON);
+
+        try {
+            client.update(updateRequest, RequestOptions.DEFAULT);
+        } catch (ElasticsearchStatusException e) {
+            throw new NoSuchElementException("未找到该文章");
+        }
+    }
+
+    @Override
+    public void deleteArticle(String id) throws IOException, NoSuchElementException {
+        DeleteRequest deleteRequest = new DeleteRequest(ArticleIndex.INDEX_NAME, id);
+
+        DeleteResponse delete = client.delete(deleteRequest, RequestOptions.DEFAULT);
+
+        if (EsUtils.checkFail(delete)) {
+            throw new NoSuchElementException("未找到该文章");
+        }
+
     }
 }

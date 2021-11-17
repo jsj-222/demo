@@ -54,9 +54,15 @@ public class ArticleServiceImpl implements ArticleService {
     }
 
 
+    @Transactional(rollbackFor = RuntimeException.class)
     @Override
     public void modifyArticle(Article article) throws NoSuchElementException {
         int i = articleMapper.updateById(article);
+        try {
+            esArticleService.modifyArticle(String.valueOf(article.getId()), article.getTitle(), article.getBody());
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
         if(i==0){
             throw new NoSuchElementException();
         }
@@ -76,10 +82,16 @@ public class ArticleServiceImpl implements ArticleService {
         return article.getId();
     }
 
+    @Transactional(rollbackFor = RuntimeException.class)
     @Override
     public void deleteArticle(String id) throws NoSuchElementException {
        int i= articleMapper.deleteById(id);
-       if(i == 0){
+        try {
+            esArticleService.deleteArticle(id);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+        if(i == 0){
            throw new NoSuchElementException();
        }
 

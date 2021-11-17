@@ -4,19 +4,12 @@ import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.biocar.bean.Article;
 import com.biocar.mapper.ArticleMapper;
 import com.biocar.service.EsArticleService;
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.elasticsearch.action.bulk.BulkRequest;
 import org.elasticsearch.action.index.IndexRequest;
-import org.elasticsearch.action.search.SearchRequest;
-import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.client.RequestOptions;
 import org.elasticsearch.client.RestHighLevelClient;
 import org.elasticsearch.common.xcontent.XContentType;
-import org.elasticsearch.index.query.QueryBuilders;
-import org.elasticsearch.search.SearchHit;
-import org.elasticsearch.search.builder.SearchSourceBuilder;
-import org.elasticsearch.search.fetch.subphase.FetchSourceContext;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -82,6 +75,16 @@ public class ArticleIndexTest {
     @Test
     public void insert() throws IOException{
         esArticleService.addArticle("1", "t", "t");
+    }
+
+    @Test
+    public void delete() throws IOException{
+        esArticleService.deleteArticle("1");
+    }
+
+    @Test
+    public void modify() throws IOException {
+        esArticleService.modifyArticle("1", "hello", null);
     }
     
 }

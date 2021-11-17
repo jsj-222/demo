@@ -6,9 +6,6 @@ import com.biocar.response.BalanceDetail;
 import com.biocar.service.BalanceService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-
-import java.sql.SQLException;
-import java.sql.SQLIntegrityConstraintViolationException;
 import java.util.Date;
 import java.util.List;
 import java.util.NoSuchElementException;
