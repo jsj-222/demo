@@ -21,7 +21,7 @@ import java.util.NoSuchElementException;
  */
 @RestController
 @CrossOrigin
-@RequestMapping(value = "/article", produces = MediaType.APPLICATION_JSON_VALUE)
+@RequestMapping(value = "/article")
 public class ArticleController {
 
     private ArticleService articleService;

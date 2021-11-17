@@ -23,6 +23,10 @@ public class ResBean<T> {
      */
     private String message = "success";
 
+    public ResBean(int code) {
+        this.code = code;
+    }
+
     /**
      * 返回体
      */
@@ -34,7 +38,7 @@ public class ResBean<T> {
      * 成功返回
      */
     public static <T> ResBean<T> success() {
-        return new ResBean<>();
+        return new ResBean<>(SUCCESS_CODE);
     }
 
     /**
@@ -42,8 +46,7 @@ public class ResBean<T> {
      * @param data 响应数据
      */
     public static <T> ResBean<T> successWithObj(T data) {
-        ResBean<T> resBean = new ResBean<>();
-        resBean.setCode(SUCCESS_CODE);
+        ResBean<T> resBean = new ResBean<>(SUCCESS_CODE);
         resBean.setData(data);
         return resBean;
     }
@@ -53,7 +56,7 @@ public class ResBean<T> {
      * @param errorMsg 错误信息
      */
     public static <T> ResBean<T> failWithMsg(String errorMsg) {
-        ResBean<T> resBean = new ResBean<>();
+        ResBean<T> resBean = new ResBean<>(0);
         resBean.setCode(0);
         resBean.setMessage(errorMsg);
         return resBean;
@@ -64,7 +67,7 @@ public class ResBean<T> {
      * @param data 响应数据
      */
     public static <T> ResBean<T> failWithObj(T data) {
-        ResBean<T> resBean = new ResBean<>();
+        ResBean<T> resBean = new ResBean<>(0);
         resBean.setCode(0);
         resBean.setMessage("fail");
         resBean.setData(data);

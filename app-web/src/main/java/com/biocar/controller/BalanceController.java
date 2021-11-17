@@ -5,7 +5,7 @@ import com.biocar.bean.Balance;
 import com.biocar.response.BalanceDetail;
 import com.biocar.service.BalanceService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.annotation.Description;
+import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.*;
 
 import java.math.BigDecimal;
@@ -21,7 +21,7 @@ import java.util.NoSuchElementException;
  * @author DeSen Xu
  * @date 2021-11-11 16:19
  */
-@RequestMapping("/balance")
+@RequestMapping(value = "/balance", produces = MediaType.APPLICATION_JSON_VALUE)
 @RestController
 @CrossOrigin
 public class BalanceController {
@@ -34,7 +34,16 @@ public class BalanceController {
     }
 
 
+    /**
+     * 将字符串按照 yyyy-MM-dd 的格式解析
+     * @param date 字符串日期, 若为null返回当天日期
+     * @return Date类日期
+     * @throws ParseException 字符串格式有误,解析失败
+     */
     private Date parseDate(String date) throws ParseException {
+        if (date == null) {
+            return new Date();
+        }
         String pattern = "yyyy-MM-dd";
         SimpleDateFormat simpleDateFormat = new SimpleDateFormat(pattern);
         return simpleDateFormat.parse(date);
@@ -42,11 +51,17 @@ public class BalanceController {
 
     /**
      * 获取某一天的总收入
-     * @param date 日期, 例如: 2020-11-01
-     * @return 当天的总收入
+     * @status done
+     * @param date 日期, 例如: 2020-11-01 <b>不填默认为当天日期</b>
+     * @return 当天的总收入, 示例:
+     * {
+     *     "code": 20000,
+     *     "message": "success",
+     *     "data": -25741.59
+     * }
      */
     @GetMapping("/sum")
-    public ResBean<Double> getBalanceOfTheDay(@RequestParam String date) {
+    public ResBean<Double> getBalanceOfTheDay(@RequestParam(required = false) String date) {
         try {
             Double balanceOfTheDay = balanceService.getBalanceOfTheDay(parseDate(date));
             return ResBean.successWithObj(balanceOfTheDay);
@@ -59,7 +74,8 @@ public class BalanceController {
 
     /**
      * 添加账单
-     * @param date 日期, 例如: 2020-11-01
+     * @status done
+     * @param date 日期, 例如: 2020-11-01. <b>不填默认为当天日期</b>
      * @param projectId 项目id
      *                  1: 销货收入 2: 其他收入 3: 零食采购 4: 采购支出 5: 房租 6: 工资
      *                  7: 利息支出 8: 办公费 9: 水电 10: 运费 11: 招待 12: 其他
@@ -67,12 +83,17 @@ public class BalanceController {
      * @param note 备注
      * @param master 该账单的管理人
      * @param balanceType 账单类型, 0: 支出, 1: 收入 (默认为收入)
+     * @return 返回示例:
+     * {
+     *     "code": 20000,
+     *     "message": "success"
+     * }
      */
-    @PostMapping("/add")
-    public ResBean<Void> addBalance(@RequestParam String date,
+    @PostMapping(value = "/add", headers = "Content-Type=" + MediaType.APPLICATION_FORM_URLENCODED_VALUE)
+    public ResBean<Void> addBalance(@RequestParam(required = false) String date,
                                     @RequestParam Integer projectId,
                                     @RequestParam Double revenue,
-                                    @RequestParam String note,
+                                    @RequestParam(required = false) String note,
                                     @RequestParam String master,
                                     @RequestParam(required = false, defaultValue = "1") Integer balanceType) {
 
@@ -93,6 +114,21 @@ public class BalanceController {
     /**
      * 根据id查询账单
      * @param id 账单id
+     * @status done
+     * @return 返回示例:
+     * {
+     * 	"code": 20000,
+     * 	"message": "success",
+     * 	"data": {
+     * 		"id": 1,
+     * 		"date": "2021-11-01",
+     * 		"projectName": "销货收入",
+     * 		"revenue": 3600,
+     * 		"master": "吴彬",
+     * 		"note": "",
+     * 		"balanceType": 1
+     *        }
+     * }
      */
     @GetMapping("/query")
     public ResBean<BalanceDetail> getBalanceById(@RequestParam Integer id) {
@@ -106,9 +142,15 @@ public class BalanceController {
 
     /**
      * 根据id删除账单
+     * @status done
      * @param id 账单id
+     * @return 返回示例:
+     * {
+     *     "code": 20000,
+     *     "message": "success"
+     * }
      */
-    @PostMapping("/delete")
+    @PostMapping(value = "/delete", headers = "Content-Type=" + MediaType.APPLICATION_FORM_URLENCODED_VALUE)
     public ResBean<Void> deleteBalanceById(@RequestParam Integer id) {
         try {
             balanceService.deleteBalance(id);
@@ -120,11 +162,17 @@ public class BalanceController {
 
     /**
      * 获取某一天的总收入
-     * @param date 日期, 如 2021-11-01
-     * @return 总收入
+     * @status done
+     * @param date 日期, 如 2021-11-01, <b>不填默认为当天日期</b>
+     * @return 总收入, 示例:
+     * {
+     *     "code": 20000,
+     *     "message": "success",
+     *     "data": 15768.41
+     * }
      */
     @GetMapping("/in")
-    public ResBean<Double> getBalanceIn(@RequestParam String date) {
+    public ResBean<Double> getBalanceIn(@RequestParam(required = false) String date) {
         try {
             Double balanceIn = balanceService.getBalanceIn(parseDate(date));
             return ResBean.successWithObj(balanceIn);
@@ -137,11 +185,17 @@ public class BalanceController {
 
     /**
      * 获取某一天的总支出
-     * @param date 日期, 如 2021-11-01
-     * @return 总支出(正数)
+     * @status done
+     * @param date 日期, 如 2021-11-01, <b>不填默认为当天日期</b>
+     * @return 总支出(正数), 示例:
+     * {
+     *     "code": 20000,
+     *     "message": "success",
+     *     "data": 41510.0
+     * }
      */
     @GetMapping("/out")
-    public ResBean<Double> getBalanceOut(@RequestParam String date) {
+    public ResBean<Double> getBalanceOut(@RequestParam(required = false) String date) {
         try {
             double balanceOut = balanceService.getBalanceOut(parseDate(date));
             return ResBean.successWithObj(balanceOut);
@@ -154,11 +208,36 @@ public class BalanceController {
 
     /**
      * 获取某一天的收入账单列表
-     * @param date 日期, 如 2021-11-01
-     * @return 收入账单列表
+     * @status done
+     * @param date 日期, 如 2021-11-01, <b>不填默认为当天日期</b>
+     * @return 收入账单列表, 示例:
+     * {
+     *     "code": 20000,
+     *     "message": "success",
+     *     "data": [
+     *         {
+     *             "id": 1,
+     *             "date": "2021-11-01",
+     *             "projectName": "销货收入",
+     *             "revenue": 3600.0,
+     *             "master": "吴彬",
+     *             "note": "",
+     *             "balanceType": 1
+     *         },
+     *         {
+     *             "id": 2,
+     *             "date": "2021-11-01",
+     *             "projectName": "其他收入",
+     *             "revenue": 500.0,
+     *             "master": "刘港",
+     *             "note": "",
+     *             "balanceType": 1
+     *         }
+     *     ]
+     * }
      */
     @GetMapping("/in/list")
-    public ResBean<List<BalanceDetail>> getBalanceInList(@RequestParam String date) {
+    public ResBean<List<BalanceDetail>> getBalanceInList(@RequestParam(required = false) String date) {
         try {
             List<BalanceDetail> balanceInList = balanceService.getBalanceInList(parseDate(date));
             if (balanceInList == null) {
@@ -172,11 +251,36 @@ public class BalanceController {
 
     /**
      * 获取某一天的支出账单列表
-     * @param date 日期, 如 2021-11-01
-     * @return 支出账单列表
+     * @status done
+     * @param date 日期, 如 2021-11-01, <b>不填默认为当天日期</b>
+     * @return 支出账单列表, 示例:
+     * {
+     *     "code": 20000,
+     *     "message": "success",
+     *     "data": [
+     *         {
+     *             "id": 6,
+     *             "date": "2021-11-01",
+     *             "projectName": "工资",
+     *             "revenue": 36910.0,
+     *             "master": "刘宇",
+     *             "note": "",
+     *             "balanceType": 0
+     *         },
+     *         {
+     *             "id": 7,
+     *             "date": "2021-11-01",
+     *             "projectName": "利息支出",
+     *             "revenue": 4600.0,
+     *             "master": "万维亨",
+     *             "note": "",
+     *             "balanceType": 0
+     *         }
+     *     ]
+     * }
      */
     @GetMapping("/out/list")
-    public ResBean<List<BalanceDetail>> getBalanceOutList(@RequestParam String date) {
+    public ResBean<List<BalanceDetail>> getBalanceOutList(@RequestParam(required = false) String date) {
         try {
             List<BalanceDetail> balanceOutList = balanceService.getBalanceOutList(parseDate(date));
             if (balanceOutList == null) {
@@ -190,6 +294,7 @@ public class BalanceController {
 
     /**
      * 更新账单
+     * @status done
      * @param id 账单id
      * @param projectId 项目id
      *                  1: 销货收入 2: 其他收入 3: 零食采购 4: 采购支出 5: 房租 6: 工资
@@ -198,8 +303,13 @@ public class BalanceController {
      * @param master 负责人
      * @param note 备注
      * @param balanceType 账单类型, 0: 支出, 1:收入
+     * @return 示例:
+     * {
+     *     "code": 20000,
+     *     "message": "success"
+     * }
      */
-    @PostMapping("/update")
+    @PostMapping(value = "/update", headers = "Content-Type=" + MediaType.APPLICATION_FORM_URLENCODED_VALUE)
     public ResBean<Void> updateBalance(@RequestParam Integer id,
                                        @RequestParam(required = false) Integer projectId,
                                        @RequestParam(required = false) Double revenue,
@@ -212,12 +322,16 @@ public class BalanceController {
         balance.setRevenue(revenue == null ? null : BigDecimal.valueOf(revenue));
         balance.setMaster(master);
         balance.setNote(note);
-        balance.setBalanceType(balanceType != 0);
+        if (balanceType != null) {
+            balance.setBalanceType(balanceType == 1);
+        }
         try {
             balanceService.updateBalance(balance);
             return ResBean.success();
         } catch (NoSuchElementException e) {
             return ResBean.failWithMsg("无法找到该账单");
+        } catch (IllegalArgumentException e) {
+            return ResBean.failWithMsg("projectId范围有误, 请检查后重新输入");
         }
     }
 

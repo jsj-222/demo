@@ -1,14 +1,14 @@
 package com.biocar.service.impl;
 
-import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.biocar.bean.Balance;
 import com.biocar.mapper.BalanceMapper;
 import com.biocar.response.BalanceDetail;
 import com.biocar.service.BalanceService;
-import com.biocar.utils.WrapperUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.sql.SQLException;
+import java.sql.SQLIntegrityConstraintViolationException;
 import java.util.Date;
 import java.util.List;
 import java.util.NoSuchElementException;
@@ -39,26 +39,22 @@ public class BalanceServiceImpl implements BalanceService {
 
     @Override
     public double getBalanceIn(Date date) {
-        List<Object> objects = balanceMapper.selectObjs(new QueryWrapper<Balance>()
-                .select(WrapperUtils.sum(BalanceMapper.COLUMN_REVENUE))
-                .eq(BalanceMapper.COLUMN_BALANCE_TYPE, true)
-                .eq(BalanceMapper.COLUMN_DATE, date));
-        if (objects.size() == 0) {
+        Double balanceIn = balanceMapper.getBalanceIn(date);
+        if (balanceIn == null) {
             throw new NoSuchElementException();
+        } else {
+            return balanceIn;
         }
-        return (Double) objects.get(0);
     }
 
     @Override
     public double getBalanceOut(Date date) {
-        List<Object> objects = balanceMapper.selectObjs(new QueryWrapper<Balance>()
-                .select(WrapperUtils.sum(BalanceMapper.COLUMN_REVENUE))
-                .eq(BalanceMapper.COLUMN_BALANCE_TYPE, false)
-                .eq(BalanceMapper.COLUMN_DATE, date));
-        if (objects.size() == 0) {
+        Double balanceOut = balanceMapper.getBalanceOut(date);
+        if (balanceOut == null) {
             throw new NoSuchElementException();
+        } else {
+            return balanceOut;
         }
-        return (Double) objects.get(0);
     }
 
     @Override
@@ -93,8 +89,14 @@ public class BalanceServiceImpl implements BalanceService {
     }
 
     @Override
-    public void updateBalance(Balance balance) throws NoSuchElementException {
-        int i = balanceMapper.updateById(balance);
+    public void updateBalance(Balance balance) throws NoSuchElementException, IllegalArgumentException {
+        int i;
+        try {
+            i = balanceMapper.updateById(balance);
+        } catch (Exception e) {
+            // 项目id插入有误
+            throw new IllegalArgumentException(e);
+        }
         if (i == 0) {
             throw new NoSuchElementException();
         }

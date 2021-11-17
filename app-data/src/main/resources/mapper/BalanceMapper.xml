@@ -34,4 +34,16 @@
         WHERE b.id = #{id}
     </select>
 
+    <select id="getBalanceIn" resultType="java.lang.Double">
+        SELECT SUM(revenue)
+        FROM t_balance
+        WHERE balance_type AND date = #{date}
+    </select>
+
+    <select id="getBalanceOut" resultType="java.lang.Double">
+        SELECT SUM(revenue)
+        FROM t_balance
+        WHERE !balance_type AND date = #{date}
+    </select>
+
 </mapper>

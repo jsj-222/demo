@@ -75,8 +75,9 @@ public interface BalanceService {
      * 更新账单
      * @param balance 账单信息
      * @throws NoSuchElementException 没有找到该账单
+     * @throws IllegalArgumentException 传入的projectId范围有误
      */
-    void updateBalance(Balance balance) throws NoSuchElementException;
+    void updateBalance(Balance balance) throws NoSuchElementException, IllegalArgumentException;
 
     /**
      * 通过id获取账单

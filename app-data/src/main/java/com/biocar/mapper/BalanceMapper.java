@@ -65,4 +65,18 @@ public interface BalanceMapper extends BaseMapper<Balance> {
      */
     BalanceDetail getBalanceById(@Param("id") int id);
 
+    /**
+     * 获取某一天的总收入
+     * @param date 日期
+     * @return 总收入(正数)
+     */
+    Double getBalanceIn(@Param("date") Date date);
+
+    /**
+     * 获取某一天的总支出
+     * @param date 日期
+     * @return 总支出(正数)
+     */
+    Double getBalanceOut(@Param("date") Date date);
+
 }
