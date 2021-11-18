@@ -8,7 +8,7 @@
     
     cd app-core/target
     
-    # 将jar包移动到合适的位置
+    # 将jar包移动到合适的位置(此处包名可能由于版本号发生变化, 建议移动的同时去掉版本号)
     mv app-core-1.0.jar xxx
 ```
 ### 2.添加配置文件
@@ -26,13 +26,22 @@ spring:
   profiles:
     # 使用生产环境的配置文件
     active: pro
-    # 配置数据库
+  # 配置数据库
   datasource:
-    # url要写时区, 不然大概率报错
+    # url要写时区
     url: jdbc:mysql://localhost:3306/article_collect?ServerTimezone=GMT%2B8
     username: root
     password: abc123
-# 如需配置端口，可以按照如下格式修改，默认为8080
+  # es配置
+  elasticsearch:
+    rest:
+      # 若为集群 uris: [192.168.0.1:9200, 192.168.0.2:9200]
+      uris: 192.168.12.128:9200
+      username: root
+      password: abc123
+      
+
+# 配置端口，默认为8080
 server:
   port: 8080
 ```
