@@ -92,11 +92,6 @@
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-data-elasticsearch</artifactId>
         </dependency>
-        <!-- app-common -->
-        <dependency>
-            <groupId>com.biocar</groupId>
-            <artifactId>app-common</artifactId>
-        </dependency>
     </dependencies>
 
     <dependencyManagement>
