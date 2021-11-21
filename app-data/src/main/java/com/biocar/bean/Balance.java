@@ -21,7 +21,7 @@ import java.util.Date;
 @NoArgsConstructor
 @TableName("t_balance")
 public class Balance {
-
+//这里2
     /**
      * 账单id
      */
