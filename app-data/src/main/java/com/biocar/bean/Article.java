@@ -27,6 +27,8 @@ public class Article {
     @TableId(type = IdType.AUTO)
     private Long id;
 
+    //我改了这里
+
     /**
      * 文章标题
      */
